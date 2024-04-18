@@ -93,7 +93,7 @@ const PaymentMollie = PaymentInterface.extend({
                 line.set_payment_status('retry');
             }
         });
-        return false;
+        return Promise.resolve();
     },
 
     close: function () {
