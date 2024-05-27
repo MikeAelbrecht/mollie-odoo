@@ -4,6 +4,7 @@
     <record id="payment.payment_acquirer_mollie" model="payment.acquirer">
         <field name="support_fees_computation">True</field>
         <field name="support_refund">partial</field>
+        <field name="support_authorization">True</field>
     </record>
 
 </odoo>
