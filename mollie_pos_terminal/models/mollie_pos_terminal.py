@@ -73,7 +73,8 @@ class MolliePosTerminal(models.Model):
 
     def _prepare_payment_payload(self, data):
         base_url = self.get_base_url()
-        webhook_url = urls.url_join(base_url, '/pos_mollie/webhook/')
+        order_type = data.get('order_type', 'pos')
+        webhook_url = urls.url_join(base_url, f"/pos_mollie/webhook/{order_type}")
         return {
             "amount": {
                 "currency": data['curruncy'],
@@ -87,6 +88,8 @@ class MolliePosTerminal(models.Model):
             "metadata": {
                 "mollie_uid": data['mollie_uid'],
                 "order_id": data['order_id'],
+                "payment_method_id": data['payment_method_id'],
+                'order_type': order_type
             }
         }
 

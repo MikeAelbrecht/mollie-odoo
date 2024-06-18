@@ -62,7 +62,7 @@ class MolliePosTerminal(models.Model):
             return mollie_payment.terminal_id._api_cancel_mollie_payment(mollie_payment.name)
         return {}
 
-    def _mollie_process_webhook(self, webhook_data):
+    def _mollie_process_webhook(self, webhook_data, order_type='pos'):
         mollie_payment = self.sudo().search([('name', '=', webhook_data.get('id'))], limit=1)
         if mollie_payment:
             payment_status = mollie_payment.terminal_id._api_get_mollie_payment_status(webhook_data.get('id'))

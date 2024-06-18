@@ -6,7 +6,7 @@
     'author': 'Mollie',
     'maintainer': 'Applix',
     'license': 'LGPL-3',
-    'category': '',
+    'category': 'Point of Sale',
     'depends': [
         'point_of_sale',
     ],
