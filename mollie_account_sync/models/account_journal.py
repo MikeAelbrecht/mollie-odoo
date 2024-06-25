@@ -11,7 +11,7 @@ from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
-TIMEOUT = 20
+TIMEOUT = 60
 API_DEBUG = False
 
 
@@ -119,7 +119,7 @@ class AccountJournal(models.Model):
         statement_lines = []
 
         for payment in payment_data:
-            if not payment.get('settlementAmount'):
+            if not payment.get('settlementAmount') or payment.get('status') == 'failed':
                 continue
             statement_line = {
                 'date': self._format_mollie_date(payment['createdAt']),
@@ -131,7 +131,7 @@ class AccountJournal(models.Model):
             statement_lines.append((0, 0, statement_line))
 
         for refund in refund_data:
-            if not refund.get('settlementAmount'):
+            if not refund.get('settlementAmount') or refund.get('status') == 'failed':
                 continue
             statement_line = {
                 'date': self._format_mollie_date(refund['createdAt']),
@@ -146,7 +146,7 @@ class AccountJournal(models.Model):
             statement_lines.append((0, 0, fee_line))
 
         for capture in capture_data:
-            if not capture.get('settlementAmount'):
+            if not capture.get('settlementAmount') or capture.get('status') == 'failed':
                 continue
             statement_line = {
                 'date': self._format_mollie_date(capture['createdAt']),
@@ -159,7 +159,7 @@ class AccountJournal(models.Model):
             statement_lines.append((0, 0, statement_line))
 
         for chargeback in chargeback_data:
-            if not chargeback.get('settlementAmount'):
+            if not chargeback.get('settlementAmount') or chargeback.get('status') == 'failed':
                 continue
             statement_line = {
                 'date': self._format_mollie_date(chargeback['createdAt']),
