@@ -2,7 +2,7 @@
 
 {
     'name': 'Mollie Settlement Sync',
-    'version': '14.0.1.1',
+    'version': '14.0.1.2',
     'description': '',
     'summary': 'This module sync settlements from mollie',
     'author': 'Mollie',
