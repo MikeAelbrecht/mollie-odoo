@@ -12,9 +12,6 @@ class MolliePaymentIssuers(models.Model):
     name = fields.Char(translate=True)
     sequence = fields.Integer()
     provider_id = fields.Many2one("payment.method", string="Provider")
-    payment_icon_ids = fields.Many2many(
-        "payment.icon", string="Supported Payment Icons"
-    )
     issuers_code = fields.Char()
     active = fields.Boolean(default=True)
 
