@@ -20,17 +20,18 @@ class SaleOrder(models.Model):
         """
         self._remove_mollie_fees_line()
         fees_product_id = transaction.provider_id.mollie_fees_product_id
-        if transaction.provider_code == 'mollie' and fees_product_id:
+        if transaction.provider_code == 'mollie' and fees_product_id and transaction.payment_method_id.fees_active:
             mollie_fees = transaction.payment_method_id._compute_fees(
                 transaction.amount, transaction.partner_id.country_id, transaction.provider_id
             )
-            self.env['sale.order.line'].create({
-                'product_id': fees_product_id.id,
-                'product_uom_qty': 1,
-                'order_id': self.id,
-                'price_unit': mollie_fees,
-                'is_mollie_fees': True
-            })
+            if mollie_fees:
+                self.env['sale.order.line'].create({
+                    'product_id': fees_product_id.id,
+                    'product_uom_qty': 1,
+                    'order_id': self.id,
+                    'price_unit': mollie_fees,
+                    'is_mollie_fees': True
+                })
 
 
 class SaleOrderLine(models.Model):

@@ -158,14 +158,30 @@ class PaymentMethod(models.Model):
         if not extra_params.get('billingCountry') and partner.country_id:
             extra_params['billingCountry'] = partner.country_id.code
 
-        if not has_voucher_line:
+        if has_voucher_line:
+            extra_params['orderLineCategories'] = ','.join(has_voucher_line)
+        else:
             mollie_allowed_methods = mollie_allowed_methods.filtered(lambda m: m.code != 'voucher')
 
         # Hide methods if mollie does not supports them (checks via api call)
         supported_methods = mollie_providers[:1]._api_mollie_get_active_payment_methods(extra_params=extra_params)  # sudo as public user do not have access to keys
         mollie_allowed_methods = mollie_allowed_methods.filtered(lambda m: const.PAYMENT_METHODS_MAPPING.get(m.code, m.code) in supported_methods.keys())
+        mollie_issuers = {}
+        for method, method_data in supported_methods.items():
+            issuers = method_data.get('issuers')
+            if issuers:
+                mollie_method = self.search([('code', '=', method), ('primary_payment_method_id', '=', False)])
+                if mollie_method:
+                    issuers_codes = list(map(lambda issuer: issuer['id'], issuers))
+                    mollie_issuers[mollie_method[0].id] = mollie_method[0].brand_ids.filtered(lambda brand: brand.active and brand.code in issuers_codes).ids  # always use first method, didn't occuer any case to get multiple methods but handle it
 
-        return non_mollie_pms | mollie_allowed_methods
+        return (non_mollie_pms | mollie_allowed_methods).with_context(mollie_issuers=mollie_issuers)
+
+    def _get_mollie_method_supported_issuers(self):
+        mollie_issuers = self.env.context.get('mollie_issuers', [])
+        if mollie_issuers.get(self.id):
+            return self.browse(mollie_issuers[self.id])
+        return []
 
     def _get_inline_form_xml_id(self, original_xml_id, provider_sudo):
         self.ensure_one()

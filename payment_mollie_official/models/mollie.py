@@ -1,20 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo.osv import expression
 from odoo import fields, models
-
-
-class MolliePaymentIssuers(models.Model):
-    _name = 'mollie.payment.method.issuer'
-    _description = 'Mollie payment method issuers'
-    _order = "sequence, id"
-
-    name = fields.Char(translate=True)
-    sequence = fields.Integer()
-    provider_id = fields.Many2one('mollie.payment.method', string='Provider')
-    payment_icon_ids = fields.Many2many('payment.icon', string='Supported Payment Icons')
-    issuers_code = fields.Char()
-    active = fields.Boolean(default=True)
 
 
 class MollieVoucherLines(models.Model):
@@ -31,9 +17,9 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     def _get_mollie_voucher_category(self):
-        domain = [('product_ids', 'in', self.ids)]
-        categories = self.mapped('categ_id')
+        voucher_lines = self.env['mollie.voucher.line'].search([('product_ids', 'in', self.ids)])
+        categories = (self - voucher_lines.product_ids).mapped('categ_id')
         if categories:
-            domain = expression.OR([domain, [('category_ids', 'parent_of', categories.ids)]])
-        voucher_line = self.env['mollie.voucher.line'].search(domain, limit=1)
-        return voucher_line and voucher_line.mollie_voucher_category or False
+            category_voucher_lines = self.env['mollie.voucher.line'].search([('category_ids', 'in', categories.ids)])
+            voucher_lines |= category_voucher_lines
+        return voucher_lines and voucher_lines.mapped('mollie_voucher_category') or False

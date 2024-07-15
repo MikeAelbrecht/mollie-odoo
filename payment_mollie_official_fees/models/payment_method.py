@@ -31,6 +31,7 @@ class PaymentMethod(models.Model):
                 fixed = self.fees_int_fixed
                 variable = self.fees_int_var
             fees = (amount * variable / 100.0 + fixed)
-            if provider.mollie_fees_product_id.taxes_id:
-                fees = provider.mollie_fees_product_id.taxes_id.compute_all(fees, product=provider.mollie_fees_product_id)['total_included']
+            taxes = provider.mollie_fees_product_id.taxes_id.filtered(lambda tax: tax.company_id == self.env.company)
+            if taxes:
+                fees = taxes.compute_all(fees, product=provider.mollie_fees_product_id)['total_included']
         return fees

@@ -2,7 +2,7 @@
 
 {
     'name': 'Fees for Mollie Payments Extended',
-    'version': '17.0.0.0',
+    'version': '17.0.0.1',
     'category': 'eCommerce',
     'license': 'LGPL-3',
     'author': 'Mollie',
